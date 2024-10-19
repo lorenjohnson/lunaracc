@@ -1,0 +1,48 @@
+services:
+  python-backend:
+    image: python:3
+    volumes:
+      - ~/lunaracc:lunaracc
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`backend.lunaracc.net`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"  # Assuming your Python app runs on port 8000. Adjust if necessary.
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"  # Enable TLS for python-backend
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ~/lunaracc:lunaracc
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`lunaracc.net`)"
+      - "traefik.http.services.web.loadbalancer.server.port=80"
+      - "traefik.http.routers.web.tls.certresolver=myresolver"
+
+  proxy:
+    image: traefik:v2.9
+    command:
+      - "--api.insecure=true"  # Remove this line in production
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=your-email@example.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ~/lunaracc/letsencrypt:~/letsencrypt
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge
