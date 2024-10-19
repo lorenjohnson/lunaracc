@@ -1,6 +1,6 @@
 # Lunar Accumulator
 
-1. Create a `.env` file with appropriate values for the following env vars:
+1. Create a `.env` file with appropriate values for the following env vars (see `.env.example`):
 
    - `REPO_PATH`: The absolute path to a checkout of this repo
    - `BACKEND_BASE_URL`: The base URL for the backend (e.g. backend.lunaracc.net)
