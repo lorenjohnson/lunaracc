@@ -2,7 +2,7 @@ services:
   python-backend:
     image: python:3
     volumes:
-      - ~/lunaracc:lunaracc
+      - .:/root/lunaracc
     networks:
       - web
     labels:
@@ -14,7 +14,7 @@ services:
   nginx:
     image: nginx:latest
     volumes:
-      - ~/lunaracc:lunaracc
+      - .:/root/lunaracc
     networks:
       - web
     labels:
@@ -32,14 +32,14 @@ services:
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=your-email@example.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.myresolver.acme.storage=/root/lunaracc/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
       - "8080:8080"  # Traefik dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ~/lunaracc/letsencrypt:~/letsencrypt
+      - ./letsencrypt:/root/lunaracc/letsencrypt
     networks:
       - web
 
